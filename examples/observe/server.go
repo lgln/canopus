@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/zubairhamed/canopus"
+	"github.com/thingspin/canopus"
 )
 
 func main() {
