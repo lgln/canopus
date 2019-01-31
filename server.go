@@ -536,6 +536,30 @@ func (s *DefaultCoapServer) NotifyChange(resource, value string, confirm bool) {
 	}
 }
 
+func (s *DefaultCoapServer) Notify(resource string, value []byte, confirm bool) {
+	t := s.observations[resource]
+
+	if t != nil {
+		var req Request
+
+		if confirm {
+			req = NewRequest(MessageConfirmable, CoapCodeContent)
+		} else {
+			req = NewRequest(MessageAcknowledgment, CoapCodeContent)
+		}
+
+		for _, r := range t {
+			req.SetToken(r.Token)
+			req.SetPayload(value)
+			r.NotifyCount++
+			req.GetMessage().AddOption(OptionObserve, r.NotifyCount)
+			req.GetMessage().AddOption(OptionContentFormat, MediaTypeTlvVndOmaLwm2m)
+
+			go SendMessage(req.GetMessage(), r.Session)
+		}
+	}
+}
+
 func (s *DefaultCoapServer) AddObservation(resource, token string, session Session) {
 	s.observations[resource] = append(s.observations[resource], NewObservation(session, token, resource))
 }

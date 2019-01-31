@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/thingspin/canopus"
+	"github.com/lgln/canopus"
 )
 
 func main() {

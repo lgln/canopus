@@ -5,7 +5,7 @@ import (
 
 	"crypto/rand"
 
-	"github.com/thingspin/canopus"
+	"github.com/lgln/canopus"
 )
 
 func main() {

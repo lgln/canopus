@@ -1,6 +1,6 @@
 package main
 
-import "github.com/thingspin/canopus"
+import "github.com/lgln/canopus"
 
 func main() {
 	conn, err := canopus.Dial("localhost:5683")

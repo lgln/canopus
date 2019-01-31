@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/thingspin/canopus"
+	"github.com/lgln/canopus"
 )
 
 func main() {
