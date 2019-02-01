@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/zubairhamed/canopus",
+	"ImportPath": "github.com/lgln/canopus",
 	"GoVersion": "go1.7",
 	"Deps": [
 		{

@@ -1,6 +1,6 @@
 package main
 
-import "github.com/zubairhamed/canopus"
+import "github.com/lgln/canopus"
 
 func main() {
 	server := canopus.NewServer()

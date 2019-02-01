@@ -1,9 +1,9 @@
 # Canopus
 
-[![GoDoc](https://godoc.org/github.com/zubairhamed/canopus?status.svg)](https://godoc.org/github.com/zubairhamed/canopus)
-[![Build Status](https://drone.io/github.com/zubairhamed/canopus/status.png?)](https://drone.io/github.com/zubairhamed/canopus/latest)
+[![GoDoc](https://godoc.org/github.com/thingspin/canopus?status.svg)](https://godoc.org/github.com/thingspin/canopus)
+[![Build Status](https://drone.io/github.com/thingspin/canopus/status.png?)](https://drone.io/github.com/thingspin/canopus/latest)
 [![Coverage Status](https://coveralls.io/repos/zubairhamed/canopus/badge.svg?branch=master)](https://coveralls.io/r/zubairhamed/canopus?branch=master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/zubairhamed/canopus)](https://goreportcard.com/report/github.com/zubairhamed/canopus)
+[![Go Report Card](https://goreportcard.com/badge/github.com/thingspin/canopus)](https://goreportcard.com/report/github.com/thingspin/canopus)
 
 #### Canopus is a client/server implementation of the [Constrained Application Protocol (CoAP)][RFC7252]
 [RFC7252]: http://tools.ietf.org/html/rfc7252

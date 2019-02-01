@@ -204,3 +204,7 @@ func (c *UDPConnection) Write(b []byte) (int, error) {
 func (c *UDPConnection) Read(b []byte) (int, error) {
 	return c.conn.Read(b)
 }
+
+func (c *UDPConnection) LocalAddr() string {
+	return c.conn.LocalAddr().String()
+}

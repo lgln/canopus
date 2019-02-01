@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/zubairhamed/canopus"
+	"github.com/lgln/canopus"
 )
 
 func main() {

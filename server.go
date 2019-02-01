@@ -2,7 +2,6 @@ package canopus
 
 import (
 	"bytes"
-	"crypto/rand"
 	"log"
 	"net"
 	"strconv"
@@ -10,9 +9,7 @@ import (
 	"time"
 )
 
-var DTLS_SERVER_SESSIONS = make(map[int32]*DTLSServerSession)
 var NEXT_SESSION_ID int32 = 0
-var DTLS_CLIENT_CONNECTIONS = make(map[int32]*DTLSConnection)
 
 type ServerConfiguration struct {
 	EnableResourceDiscovery bool
@@ -289,29 +286,29 @@ func (s *DefaultCoapServer) addDiscoveryRoute() {
 }
 
 func (s *DefaultCoapServer) ListenAndServeDTLS(addr string) {
-	s.addDiscoveryRoute()
+	// s.addDiscoveryRoute()
 
-	conn := s.createConn(addr)
+	// conn := s.createConn(addr)
 
-	ctx, err := NewServerDtlsContext()
-	if err != nil {
-		panic("Unable to create SSL Context:" + err.Error())
-	}
+	// ctx, err := NewServerDtlsContext()
+	// if err != nil {
+	// 	panic("Unable to create SSL Context:" + err.Error())
+	// }
 
-	if conn == nil {
-		log.Fatal("An error occured starting up CoAPS Server")
-	} else {
-		secret := make([]byte, 32)
-		if n, err := rand.Read(secret); n != 32 || err != nil {
-			panic(err)
-		}
+	// if conn == nil {
+	// 	log.Fatal("An error occured starting up CoAPS Server")
+	// } else {
+	// 	secret := make([]byte, 32)
+	// 	if n, err := rand.Read(secret); n != 32 || err != nil {
+	// 		panic(err)
+	// 	}
 
-		s.cookieSecret = secret
-		log.Println("Started CoAPS Server ", conn.LocalAddr())
-		go s.handleIncomingDTLSData(conn, ctx)
-		go s.events.Started(s)
-		go s.handleMessageIDPurge()
-	}
+	// 	s.cookieSecret = secret
+	// 	log.Println("Started CoAPS Server ", conn.LocalAddr())
+	// 	go s.handleIncomingDTLSData(conn, ctx)
+	// 	go s.events.Started(s)
+	// 	go s.handleMessageIDPurge()
+	// }
 }
 
 func (s *DefaultCoapServer) ListenAndServe(addr string) {
@@ -347,57 +344,6 @@ func (s *DefaultCoapServer) createConn(addr string) ServerConnection {
 	return &UDPServerConnection{
 		conn: conn,
 	}
-}
-
-func (s *DefaultCoapServer) handleIncomingDTLSData(conn ServerConnection, ctx *ServerDtlsContext) {
-	readBuf := make([]byte, MaxPacketSize)
-	go func() {
-		for {
-			select {
-			case <-s.stopChannel:
-				return
-
-			default:
-				// continue
-			}
-
-			len, addr, err := conn.ReadFrom(readBuf)
-			if err == nil {
-				msgBuf := make([]byte, len)
-				copy(msgBuf, readBuf[:len])
-				ssn := s.sessions[addr.String()]
-				if ssn == nil {
-					ssn = &DTLSServerSession{
-						UDPServerSession: UDPServerSession{
-							addr:   addr,
-							conn:   conn,
-							server: s,
-							buf:    []byte{},
-							rcvd:   make(chan []byte, 1),
-						},
-					}
-					err := newSslSession(ssn.(*DTLSServerSession), ctx, s.fnPskHandler)
-					if err != nil {
-						panic(err.Error())
-					}
-					s.sessions[addr.String()] = ssn
-					s.createdSession <- ssn
-				}
-
-				ssn.(*DTLSServerSession).rcvd <- msgBuf
-			} else {
-				logMsg("Error occured reading UDP", err)
-			}
-		}
-	}()
-
-	go func() {
-		for {
-			ssn := <-s.createdSession
-			go s.handleSession(ssn)
-		}
-	}()
-
 }
 
 func (s *DefaultCoapServer) handleIncomingData(conn ServerConnection) {
@@ -584,6 +530,30 @@ func (s *DefaultCoapServer) NotifyChange(resource, value string, confirm bool) {
 			req.SetRequestURI(r.Resource)
 			r.NotifyCount++
 			req.GetMessage().AddOption(OptionObserve, r.NotifyCount)
+
+			go SendMessage(req.GetMessage(), r.Session)
+		}
+	}
+}
+
+func (s *DefaultCoapServer) Notify(resource string, value []byte, confirm bool) {
+	t := s.observations[resource]
+
+	if t != nil {
+		var req Request
+
+		if confirm {
+			req = NewRequest(MessageConfirmable, CoapCodeContent)
+		} else {
+			req = NewRequest(MessageAcknowledgment, CoapCodeContent)
+		}
+
+		for _, r := range t {
+			req.SetToken(r.Token)
+			req.SetPayload(value)
+			r.NotifyCount++
+			req.GetMessage().AddOption(OptionObserve, r.NotifyCount)
+			req.GetMessage().AddOption(OptionContentFormat, MediaTypeTlvVndOmaLwm2m)
 
 			go SendMessage(req.GetMessage(), r.Session)
 		}
